@@ -1,0 +1,37 @@
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { AuthCredentialsDto } from './dto/auth_credential.dto';
+import * as bcrypt from 'bcryptjs';
+import { InjectRepository } from '@nestjs/typeorm';
+import { UserRepository } from 'src/user/user.repository';
+import { JwtService } from '@nestjs/jwt';
+
+
+@Injectable()
+export class AuthService {
+
+    constructor(
+        @InjectRepository(UserRepository)
+        private userRepository: UserRepository,
+        private jwtService: JwtService
+    ) {}
+
+    async signUp(authCredentialsDto: AuthCredentialsDto): Promise<void> {
+        return this.userRepository.createUser(authCredentialsDto);
+    }
+
+    async signIn(authCredentialsDto: AuthCredentialsDto): Promise<{accessToken: string}> {
+        
+        const {username, password} = authCredentialsDto;
+        const user = await this.userRepository.findOne({username});
+
+        if (user && (await bcrypt.compare(password, user.password))) {
+            // 유저 토큰 생성
+            const paylaod = {username}
+            const accessToken = await this.jwtService.sign(paylaod);
+
+            return {accessToken};
+        } else {
+            throw new UnauthorizedException('login failed');
+        }
+    }
+}
