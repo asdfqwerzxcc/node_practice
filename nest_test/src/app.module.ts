@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { BoardModule } from './board/board.module';
+import { AutoCompleteModule} from './auto_complete/auto_complete.module';
+import { AutoCompleteController } from './auto_complete/auto_complete.controller';
+import { AutoCompleteService } from './auto_complete/auto_complete.service';
 
 @Module({
-  imports: [BoardModule],
-  controllers: [AppController],
-  providers: [AppService ],
+  imports: [AutoCompleteModule],
+  controllers: [AppController, AutoCompleteController],
+  providers: [AppService, AutoCompleteService ],
 })
 export class AppModule {}
